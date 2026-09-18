@@ -10,14 +10,14 @@ The project is designed to run entirely in **GitHub Codespaces using kind**, so 
 
 ```text
                     ┌─────────────────────┐
-                    │     GitHub Repo      │
+                    │     GitHub Repo     │
                     └──────────┬──────────┘
                                │
                                ▼
                     ┌─────────────────────┐
-                    │   GitHub Actions     │
+                    │   GitHub Actions    │
                     │                     │
-                    │ • Python Tests       │
+                    │ • Python Tests      │
                     │ • Docker Build      │
                     │ • Trivy Scan        │
                     │ • K8s Validation    │
@@ -25,14 +25,14 @@ The project is designed to run entirely in **GitHub Codespaces using kind**, so 
                                │
                                ▼
                     ┌─────────────────────┐
-                    │  Local Container     │
-                    │     Registry         │
-                    │      :5001           │
+                    │  Local Container    │
+                    │     Registry        │
+                    │      :5001          │
                     └──────────┬──────────┘
                                │
                                ▼
               ┌────────────────────────────────┐
-              │       kind Kubernetes Cluster   │
+              │       kind Kubernetes Cluster  │
               │                                │
               │  ┌──────────────────────────┐  │
               │  │      Production NS       │  │
@@ -47,16 +47,16 @@ The project is designed to run entirely in **GitHub Codespaces using kind**, so 
               │  │  └─────────┬──────────┘  │  │
               │  │            │             │  │
               │  │      Vault Agent         │  │
-              │  │      Injection            │  │
+              │  │      Injection           │  │
               │  └────────────┼─────────────┘  │
               │               │                │
               │               ▼                │
               │      ┌──────────────────┐      │
-              │      │   HashiCorp Vault │      │
+              │      │   HashiCorp Vault│      │
               │      │                  │      │
               │      │ Kubernetes Auth  │      │
               │      │ KV v2 Secrets    │      │
-              │      │ Policies          │      │
+              │      │ Policies         │      │
               │      └──────────────────┘      │
               └────────────────────────────────┘
 ```
