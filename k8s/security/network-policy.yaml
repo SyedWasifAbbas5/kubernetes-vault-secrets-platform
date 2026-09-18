@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vault-platform-app
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: vault-platform-app
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Allow traffic from pods in production namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: production
+      ports:
+        - protocol: TCP
+          port: 8080
+
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # HTTPS to Kubernetes/Vault services
+    - ports:
+        - protocol: TCP
+          port: 443
+
+    # HTTP for local/internal services
+    - ports:
+        - protocol: TCP
+          port: 80

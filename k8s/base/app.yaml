@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-platform-app
+  namespace: production
+  labels:
+    app: vault-platform-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vault-platform-app
+  template:
+    metadata:
+      labels:
+        app: vault-platform-app
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "production-app"
+
+        vault.hashicorp.com/agent-inject-secret-app-secret: "secret/data/production/app"
+
+        vault.hashicorp.com/agent-inject-template-app-secret: |
+          {{- with secret "secret/data/production/app" -}}
+          {{ .Data.data.API_KEY }}
+          {{- end }}
+
+    spec:
+      serviceAccountName: vault-app
+
+      containers:
+        - name: app
+          image: localhost:5001/vault-platform-app:1.0.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: APP_ENV
+              value: "production"
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-platform-app
+  namespace: production
+spec:
+  selector:
+    app: vault-platform-app
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-app
+  namespace: production
