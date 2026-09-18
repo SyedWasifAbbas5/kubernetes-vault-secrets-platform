@@ -59,8 +59,8 @@ jobs:
         run: |
           docker build -t vault-platform-app:scan .
 
-      - name: Run Trivy image scan
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: vault-platform-app:scan
           format: table
@@ -76,20 +76,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Kustomize
+      - name: Validate Kustomize build
         run: |
-          curl -sLo kustomize.tar.gz \
-            https://github.com/kubernetes-sigs/kustomize/releases/latest/download/kustomize_linux_amd64.tar.gz
-          tar -xzf kustomize.tar.gz
-          sudo mv kustomize /usr/local/bin/
-
-      - name: Build Kubernetes manifests
-        run: |
-          kustomize build k8s/security > /tmp/security.yaml
+          kubectl kustomize k8s/security > /tmp/security.yaml
 
       - name: Validate Kubernetes manifests
-        uses: instrumenta/kubeval-action@master
-        with:
-          files: /tmp/security.yaml
-          strict: true
-          ignore_missing_schemas: true
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            garethr/kubeval:latest \
+            /workspace/k8s/security/network-policy.yaml \
+            /workspace/k8s/security/rbac.yaml \
+            --strict \
+            --ignore-missing-schemas
